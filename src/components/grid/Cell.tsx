@@ -3,7 +3,7 @@ import classnames from 'classnames'
 
 type Props = {
   value?: string
-  status?: CharStatus
+  status?: any
 }
 
 export const Cell = ({ value, status }: Props) => {

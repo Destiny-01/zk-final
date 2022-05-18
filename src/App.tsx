@@ -7,6 +7,7 @@ import { InfoModal } from './components/modals/InfoModal'
 import { WinModal } from './components/modals/WinModal'
 import { isWinningWord, solution } from './lib/words'
 import { useLocation } from 'react-router-dom'
+import { CharStatus, getGuessStatuses } from './lib/statuses'
 
 type Props = {
   socket: any
@@ -14,6 +15,7 @@ type Props = {
 
 function App({ socket }: Props) {
   const [currentGuess, setCurrentGuess] = useState('')
+  const [solution, setSolution] = useState('')
   const [isGameWon, setIsGameWon] = useState(false)
   const [isMyTurn, setIsMyTurn] = useState(false)
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
@@ -24,10 +26,11 @@ function App({ socket }: Props) {
   const [shareComplete, setShareComplete] = useState(false)
   const [myGuesses, setMyGuesses] = useState<string[]>([])
   const [opponentGuesses, setOpponentGuesses] = useState<string[]>([])
+  const [myStatus, setMyStatus] = useState<CharStatus[]>([])
+  const [opponentStatus, setOpponentStatus] = useState<CharStatus[]>([])
 
   const search = useLocation().search
   const gameCode = new URLSearchParams(search).get('room_id')
-  socket.emit('getGame', gameCode)
 
   useEffect(() => {
     if (isGameWon) {
@@ -45,12 +48,57 @@ function App({ socket }: Props) {
     setCurrentGuess(currentGuess.slice(0, -1))
   }
 
+  // const switchTurn = (turn: boolean) => {
+  //   setTimeout(() => {
+  //     setIsMyTurn(turn)
+  //   }, 4000)
+  // }
+
   useEffect(() => {
+    socket.on('result', (result: any) => {
+      const status = getGuessStatuses(result)
+      console.log(isMyTurn)
+      if (isMyTurn === true) {
+        setMyStatus([...myStatus, status])
+      } else {
+        setOpponentStatus([...opponentStatus, status])
+      }
+      // isMyTurn
+      //   ? setMyStatus([...myStatus, status])
+      //   : setOpponentStatus([...opponentStatus, status])
+    })
+    socket.on('yourGuess', (guess: any) => {
+      setMyGuesses([...myGuesses, guess])
+      // switchTurn(false)
+    })
     socket.on('guess', (guess: any) => {
       setOpponentGuesses([...opponentGuesses, guess])
-      console.log(guess)
+      // switchTurn(true)
     })
-  }, [myGuesses])
+    socket.on('init', (sol: string, num: number) => {
+      setSolution(sol)
+      console.log('inittttttttt')
+      num === 1 ? setIsMyTurn(true) : setIsMyTurn(false)
+    })
+    socket.on('wonGame', () => {
+      setIsGameWon(true)
+    })
+    socket.on('lostGame', () => {
+      setIsGameLost(true)
+      return setTimeout(() => {
+        setIsGameLost(false)
+      }, 4000)
+    })
+  }, [
+    isMyTurn,
+    myGuesses,
+    myStatus,
+    opponentGuesses,
+    opponentStatus,
+    socket,
+    solution,
+  ])
+
   const onEnter = () => {
     const guessArr = String(currentGuess)
       .split('')
@@ -67,25 +115,27 @@ function App({ socket }: Props) {
       }, 3000)
     }
 
-    const winningWord = isWinningWord(currentGuess)
+    // const winningWord = isWinningWord(currentGuess)
 
     if (currentGuess.length === 4 && myGuesses.length < 6 && !isGameWon) {
       socket.emit('guess', currentGuess, gameCode)
-      setMyGuesses([...myGuesses, currentGuess])
+      // console.log('blahhhhhh')
+      // setMyGuesses([...myGuesses, currentGuess])
       setCurrentGuess('')
 
-      if (winningWord) {
-        return setIsGameWon(true)
-      }
+      // if (winningWord) {
+      //   return setIsGameWon(true)
+      // }
 
       if (myGuesses.length === 5) {
         setIsGameLost(true)
         return setTimeout(() => {
           setIsGameLost(false)
-        }, 2000)
+        }, 4000)
       }
     }
   }
+  console.log(myStatus, opponentStatus, myGuesses, opponentGuesses, isMyTurn)
 
   return (
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -94,7 +144,7 @@ function App({ socket }: Props) {
         isOpen={isWordNotFoundAlertOpen}
       />
       <Alert
-        message={`You lost, the word was ${solution}`}
+        message={`You lost, your opponent guess was ${solution}`}
         isOpen={isGameLost}
       />
       <Alert
@@ -115,19 +165,27 @@ function App({ socket }: Props) {
           guesses={myGuesses}
           currentGuess={currentGuess}
           socket={socket}
+          solution={''}
+          isTurn={isMyTurn}
+          status={myStatus}
         />
         <Grid
+          status={opponentStatus}
+          isTurn={isMyTurn}
           player="Opponent"
           guesses={opponentGuesses}
-          currentGuess="1234"
+          currentGuess={''}
           socket={socket}
+          solution={solution}
         />
       </div>
       <Keyboard
+        solution={solution}
         onChar={onChar}
         onDelete={onDelete}
         onEnter={onEnter}
         guesses={myGuesses}
+        isMyTurn={isMyTurn}
       />
       <WinModal
         isOpen={isWinModalOpen}

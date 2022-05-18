@@ -2,7 +2,7 @@ import { getGuessStatuses } from '../../lib/statuses'
 import { MiniCell } from './MiniCell'
 
 type Props = {
-  guess: string
+  guess: any
 }
 
 export const MiniCompletedRow = ({ guess }: Props) => {
@@ -10,7 +10,7 @@ export const MiniCompletedRow = ({ guess }: Props) => {
 
   return (
     <div className="flex justify-center mb-1">
-      {guess.split('').map((letter, i) => (
+      {guess.split('').map((_: string, i: any) => (
         <MiniCell key={i} status={statuses[i]} />
       ))}
     </div>

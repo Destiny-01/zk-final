@@ -1,8 +1,9 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/outline'
 import { MiniGrid } from '../mini-grid/MiniGrid'
 import { XCircleIcon } from '@heroicons/react/outline'
+import { Alert } from '../alerts/Alert'
 
 type Props = {
   isOpen: boolean
@@ -17,6 +18,13 @@ export const WinModal = ({
   guesses,
   handleShare,
 }: Props) => {
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
+  const handleMint = () => {
+    const tx = ''
+    // const  tx= contract.methods.won.send()
+    // await tx.wait()
+    tx ? setIsAlertOpen(true) : setIsAlertOpen(false)
+  }
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -67,6 +75,11 @@ export const WinModal = ({
                     aria-hidden="true"
                   />
                 </div>
+                <Alert
+                  message="Success. You should see your nft soon"
+                  isOpen={isAlertOpen}
+                  variant="success"
+                />
                 <div className="mt-3 text-center sm:mt-5">
                   <Dialog.Title
                     as="h3"
@@ -75,8 +88,17 @@ export const WinModal = ({
                     You won!
                   </Dialog.Title>
                   <div className="mt-2">
-                    <MiniGrid guesses={guesses} />
-                    <p className="text-sm text-gray-500">Great job.</p>
+                    {/* <MiniGrid guesses={guesses} /> */}
+                    <p className="text-sm text-gray-500">
+                      And as a reward, you can mint a winner nft below
+                    </p>
+                    <button
+                      type="button"
+                      className="w-full items-center py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      onClick={handleMint}
+                    >
+                      Mint NFT
+                    </button>
                   </div>
                 </div>
               </div>

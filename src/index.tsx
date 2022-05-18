@@ -1,12 +1,20 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
+import './polyfill'
 import reportWebVitals from './reportWebVitals'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import Frame from './Frame'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Frame />
+    <Router>
+      <Switch>
+        <Route exact path="/">
+          <Frame />
+        </Route>
+      </Switch>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 )

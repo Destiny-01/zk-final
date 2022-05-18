@@ -33,11 +33,8 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
     }
     socket.emit('joinGame', code, guess)
     history.push(`/?room_id=${code}`)
-    console.log(socket.id)
     localStorage.setItem('socketid', socket.id)
     socket.on('startGame', () => {
-      console.log(socket.id)
-      console.log('datahjikiooooo')
       // setIsGameStarted(true)
     })
     socket.on('guess', (guess: any) => {
@@ -114,7 +111,8 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                     </label>
                     <label className="block mt-3">
                       <span className="block text-sm font-medium text-slate-700">
-                        Create your secret non-repeating 4-digit code
+                        Create your unique non-repeating 4-digit code. You might
+                        need to sign a transaction before proceeding
                       </span>
                       <input
                         className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"

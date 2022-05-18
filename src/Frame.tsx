@@ -4,7 +4,7 @@ import App from './App'
 import { io } from 'socket.io-client'
 
 const socket = io('http://localhost:8000')
-function Frame() {
+const Frame = () => {
   const search = useLocation().search
   const gameCode = new URLSearchParams(search).get('room_id')
 
