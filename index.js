@@ -1,6 +1,6 @@
 const app = require("http").createServer();
 
-const { groth16 } = require("snarkjs");
+const snarkjs = require("snarkjs");
 const io = require("socket.io")(app, {
   cors: {
     origin: "http://localhost:3000",
@@ -28,7 +28,7 @@ io.on("connection", (client) => {
 
     client.join(roomName);
     client.number = 1;
-    client.emit("init", 1);
+    client.emit("init", input, 1);
     console.log(client.id, "233");
   }
 
@@ -51,20 +51,72 @@ io.on("connection", (client) => {
     console.log(client.id, "234", room);
     io.in(gameCode).emit("startGame");
     client.number = 2;
-    client.emit("init", 2);
+    client.emit("init", guess, 2);
 
     startGameInterval(gameCode);
   }
 
-  function handleGuess(guess, gameCode) {
+  async function handleGuess(guess, gameCode) {
+    io.in(gameCode).emit("guessing");
+    const guessArr = String(guess)
+      .split("")
+      .map((currentGuess) => {
+        return Number(currentGuess);
+      });
     const solution = state[gameCode].players[(client.number + 2) % 2].solution;
+    const solutionArr = String(solution)
+      .split("")
+      .map((currentGuess) => {
+        return Number(currentGuess);
+      });
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+      { guess: guessArr, solution: solutionArr },
+      "test.wasm",
+      "test_0001.zkey"
+    );
+    const calldata = await snarkjs.groth16.exportSolidityCallData(
+      proof,
+      publicSignals
+    );
+    const input = JSON.parse("[" + calldata + "]");
+    let response = [];
+    const arr = ["0", "1", "2", "3"];
+    const result = publicSignals.filter((signal) => signal.length > 1);
 
-    if (solution === guess) {
+    console.log(result);
+    result.forEach((soln) => {
+      if (result.length < 5) {
+        const solnMap = soln.split("");
+        const filter = arr.filter((x) => x != solnMap[1]);
+        filter.forEach((fil) => {
+          response.push("5" + fil);
+        });
+      }
+    });
+    console.log(response, "jjjj");
+    response = response.filter((e, i, a) => a.indexOf(e) !== i);
+    console.log(response, "llll");
+    result.forEach((soln) => {
+      result.length < 5 && response.push(soln);
+    });
+
+    if (result.length < 1) {
+      response = ["50", "51", "52", "53"];
+    }
+    if (result.length == 4) {
+      response = result;
+    }
+
+    io.in(gameCode).emit("result", response, 1);
+    client.emit("yourGuess", guess);
+
+    client.broadcast.emit("guess", guess);
+
+    if (solution == guess) {
       client.emit("wonGame");
       client.broadcast.emit("lostGame");
     }
-
-    client.broadcast.emit("guess", guess);
+    console.log(response, "kkkk");
   }
 
   function handleGetGame(roomName) {
