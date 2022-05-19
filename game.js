@@ -1,23 +1,18 @@
-// const { GRID_SIZE } = require("./constants");
-
 function initGame(solution) {
-  const state = createGameState(solution);
-  //   randomFood(state);
-  return state;
-}
-
-function createGameState(solution) {
   return {
     players: [
       {
         guesses: [],
         solution,
+        ready: false,
       },
       {
         guesses: [],
         solution: "",
+        ready: false,
       },
     ],
+    turn: 1,
     active: true,
   };
 }

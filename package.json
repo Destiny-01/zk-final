@@ -12,5 +12,8 @@
   "dependencies": {
     "snarkjs": "^0.4.16",
     "socket.io": "4.2.0"
+  },
+  "devDependencies": {
+    "hardhat": "^2.9.5"
   }
 }

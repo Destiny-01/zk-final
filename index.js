@@ -18,6 +18,7 @@ io.on("connection", (client) => {
   //   client.on("keydown", handleKeyDown);
   client.on("newGame", handleNewGame);
   client.on("guess", handleGuess);
+  client.on("ready", handleReady);
   // client.on("getGame", handleGetGame);
   // client.on("startGame", handleStartGame);
   client.on("joinGame", handleJoinGame);
@@ -28,8 +29,20 @@ io.on("connection", (client) => {
 
     client.join(roomName);
     client.number = 1;
+    client.roomName = roomName;
     client.emit("init", input, 1);
-    console.log(client.id, "233");
+  }
+
+  function handleReady() {
+    state[client.roomName].players[client.number - 1].ready = true;
+    console.log(
+      state[client.roomName].players[(client.number + 2) % 2].ready &&
+        state[client.roomName].players[client.number - 1].ready
+    );
+    // state[roomName].players[(client.number + 2) % 2].ready &&
+    // state[roomName].players[client.number - 1].ready
+    //   ? startTimer
+    //   : "";
   }
 
   function handleJoinGame(gameCode, guess) {
@@ -37,6 +50,7 @@ io.on("connection", (client) => {
     const numClients = room ? room.size : 0;
 
     if (numClients === 0) {
+      console.log("booo");
       client.emit("unknownGame");
       return;
     } else if (numClients > 1) {
@@ -51,12 +65,18 @@ io.on("connection", (client) => {
     console.log(client.id, "234", room);
     io.in(gameCode).emit("startGame");
     client.number = 2;
+    client.roomName = gameCode;
     client.emit("init", guess, 2);
 
     startGameInterval(gameCode);
   }
 
   async function handleGuess(guess, gameCode) {
+    if (client.number != state[gameCode].turn) {
+      return state[gameCode].turn == 1
+        ? (state[gameCode].turn = 2)
+        : (state[gameCode].turn = 1);
+    }
     io.in(gameCode).emit("guessing");
     const guessArr = String(guess)
       .split("")
@@ -79,44 +99,46 @@ io.on("connection", (client) => {
       publicSignals
     );
     const input = JSON.parse("[" + calldata + "]");
-    let response = [];
-    const arr = ["0", "1", "2", "3"];
     const result = publicSignals.filter((signal) => signal.length > 1);
+    const response = calc(result);
 
-    console.log(result);
-    result.forEach((soln) => {
-      if (result.length < 5) {
-        const solnMap = soln.split("");
-        const filter = arr.filter((x) => x != solnMap[1]);
-        filter.forEach((fil) => {
-          response.push("5" + fil);
-        });
-      }
-    });
-    console.log(response, "jjjj");
-    response = response.filter((e, i, a) => a.indexOf(e) !== i);
-    console.log(response, "llll");
-    result.forEach((soln) => {
-      result.length < 5 && response.push(soln);
-    });
+    client.emit("yourGuess", guess, response);
+    client.broadcast.emit("guess", guess, response);
 
-    if (result.length < 1) {
-      response = ["50", "51", "52", "53"];
-    }
-    if (result.length == 4) {
-      response = result;
-    }
-
-    io.in(gameCode).emit("result", response, 1);
-    client.emit("yourGuess", guess);
-
-    client.broadcast.emit("guess", guess);
+    state[gameCode].turn == 1
+      ? (state[gameCode].turn = 2)
+      : (state[gameCode].turn = 1);
+    io.in(gameCode).emit("turn", state[gameCode].turn);
 
     if (solution == guess) {
       client.emit("wonGame");
-      client.broadcast.emit("lostGame");
+      client.broadcast.emit("lostGame", solution);
     }
-    console.log(response, "kkkk");
+  }
+
+  function calc(result) {
+    let response = [];
+    const solution = [];
+    const arr = ["0", "1", "2", "3"];
+
+    if (result.length < 1) {
+      return (response = ["50", "51", "52", "53"]);
+    }
+    if (result.length == 4) {
+      return (response = result);
+    }
+
+    result.forEach((soln) => {
+      if (response.length < 5) {
+        response.push(soln);
+        const solnMap = soln.split("");
+        solution.push(solnMap[1]);
+      }
+    });
+    const filter = arr.filter((x) => !solution.includes(x));
+    filter.forEach((fil) => response.length < 5 && response.push("5" + fil));
+
+    return response;
   }
 
   function handleGetGame(roomName) {
