@@ -1,26 +1,17 @@
 import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/outline'
-import { MiniGrid } from '../mini-grid/MiniGrid'
-import { XCircleIcon } from '@heroicons/react/outline'
 import { Alert } from '../alerts/Alert'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
-  guesses: string[]
-  handleShare: () => void
 }
 
-export const WinModal = ({
-  isOpen,
-  handleClose,
-  guesses,
-  handleShare,
-}: Props) => {
+export const WinModal = ({ isOpen, handleClose }: Props) => {
   const [isAlertOpen, setIsAlertOpen] = useState(false)
   const handleMint = () => {
-    const tx = ''
+    const tx = 'hh'
     // const  tx= contract.methods.won.send()
     // await tx.wait()
     tx ? setIsAlertOpen(true) : setIsAlertOpen(false)
@@ -30,7 +21,7 @@ export const WinModal = ({
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        onClose={handleClose}
+        onClose={() => {}}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -45,7 +36,6 @@ export const WinModal = ({
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
             aria-hidden="true"
@@ -62,12 +52,6 @@ export const WinModal = ({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
-              <div className="absolute right-4 top-4">
-                <XCircleIcon
-                  className="h-6 w-6 cursor-pointer"
-                  onClick={() => handleClose()}
-                />
-              </div>
               <div>
                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
                   <CheckIcon
@@ -88,17 +72,26 @@ export const WinModal = ({
                     You won!
                   </Dialog.Title>
                   <div className="mt-2">
-                    {/* <MiniGrid guesses={guesses} /> */}
                     <p className="text-sm text-gray-500">
                       And as a reward, you can mint a winner nft below
                     </p>
-                    <button
-                      type="button"
-                      className="w-full items-center py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      onClick={handleMint}
-                    >
-                      Mint NFT
-                    </button>
+                    {!isAlertOpen ? (
+                      <button
+                        type="button"
+                        className="w-full mt-2 items-center py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        onClick={handleMint}
+                      >
+                        Mint NFT
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="w-full mt-2 items-center py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        onClick={() => handleClose()}
+                      >
+                        Back
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

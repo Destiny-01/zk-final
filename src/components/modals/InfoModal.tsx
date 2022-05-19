@@ -1,20 +1,24 @@
 import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { Cell } from '../grid/Cell'
-import { XCircleIcon } from '@heroicons/react/outline'
 
 type Props = {
   isOpen: boolean
+  socket: any
   handleClose: () => void
 }
 
-export const InfoModal = ({ isOpen, handleClose }: Props) => {
+export const InfoModal = ({ isOpen, handleClose, socket }: Props) => {
+  const handleClick = () => {
+    socket.emit('ready')
+    handleClose()
+  }
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        onClose={handleClose}
+        onClose={() => {}}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -29,7 +33,6 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
             aria-hidden="true"
@@ -46,12 +49,6 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
-              <div className="absolute right-4 top-4">
-                <XCircleIcon
-                  className="h-6 w-6 cursor-pointer"
-                  onClick={() => handleClose()}
-                />
-              </div>
               <div>
                 <div className="text-center">
                   <Dialog.Title
@@ -62,9 +59,9 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Guess the prime in 6 tries. After each guess, the color
-                      of the tiles will change to show how close your guess was
-                      to the prime.
+                      Guess your opponent number in 6 tries. After each guess,
+                      the color of the tiles will change to show how close your
+                      guess was to opponent's number.
                     </p>
 
                     <div className="flex justify-center mb-1 mt-4">
@@ -72,34 +69,39 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
                       <Cell value="1" />
                       <Cell value="4" />
                       <Cell value="2" />
-                      <Cell value="9" />
                     </div>
                     <p className="text-sm text-gray-500">
-                      The 7 is in the prime and in the correct spot.
+                      The 7 is part of opponent's number and in the correct
+                      spot.
                     </p>
 
                     <div className="flex justify-center mb-1 mt-4">
                       <Cell value="7" />
                       <Cell value="3" />
-                      <Cell value="0" status="present" />
                       <Cell value="6" />
-                      <Cell value="1" />
+                      <Cell value="0" status="present" />
                     </div>
                     <p className="text-sm text-gray-500">
-                      The 0 is in the prime but in the wrong spot.
+                      The 0 is part of opponent's number but in the wrong spot.
                     </p>
 
                     <div className="flex justify-center mb-1 mt-4">
                       <Cell value="2" />
-                      <Cell value="0" />
                       <Cell value="6" />
                       <Cell value="3" status="absent" />
                       <Cell value="9" />
                     </div>
                     <p className="text-sm text-gray-500">
-                      The 3 is not in the prime in any spot.
+                      The 3 is not part of opponent's number.
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleClick}
+                    className="w-full items-center mt-2 py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Let's Play
+                  </button>
                 </div>
               </div>
             </div>

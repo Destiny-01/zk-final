@@ -12,9 +12,10 @@ type Props = {
 
 export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
   let history = useHistory()
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState('hh')
   const [guess, setGuess] = useState('')
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
+  const [isInvalidGame, setIsInvalidGame] = useState(false)
 
   const handleSubmit = () => {
     const guessArr = String(guess)
@@ -31,17 +32,18 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
         setIsWordNotFoundAlertOpen(false)
       }, 3000)
     }
+    socket.on('unknownGame', () => {
+      // console.log('boooo')
+
+      setIsInvalidGame(true)
+      // console.log(isInvalidGame)
+    })
+    socket.on('tooManyPlayers', () => setIsInvalidGame(true))
     socket.emit('joinGame', code, guess)
-    history.push(`/?room_id=${code}`)
-    localStorage.setItem('socketid', socket.id)
-    socket.on('startGame', () => {
-      // setIsGameStarted(true)
-    })
-    socket.on('guess', (guess: any) => {
-      console.log(guess)
-    })
-    // handleClose()
+    // console.log(isInvalidGame)
+    !isInvalidGame && history.push(`/?room_id=${code}`)
   }
+
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -83,6 +85,10 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                 message="Please input a non repeating 4 digit number"
                 isOpen={isWordNotFoundAlertOpen}
               />
+              <Alert
+                message="Game not found or already 2 players in game"
+                isOpen={isInvalidGame}
+              />
               <div className="absolute right-4 top-4">
                 <XCircleIcon
                   className="h-6 w-6 cursor-pointer"
@@ -104,7 +110,7 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                       </span>
                       <input
                         className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
-                        placeholder="Ask oppponent to send"
+                        placeholder="Ask oppponent to send code (code is not case sensitive)"
                         onChange={(e) => setCode(e.target.value.toUpperCase())}
                         type="text"
                       />

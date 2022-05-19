@@ -12,7 +12,7 @@ type Props = {
   currentGuess: string
   player: string
   solution: any
-  isTurn: boolean
+  isTurn: number
   status: any
 }
 
@@ -37,7 +37,7 @@ export const Grid = ({
       setIsGuessing(true)
     })
 
-    socket.on('result', () => setIsGuessing(false))
+    socket.on('turn', () => setIsGuessing(false))
   }, [status, socket])
 
   const search = useLocation().search
@@ -48,11 +48,7 @@ export const Grid = ({
   return (
     <div className="pb-6 mx-5">
       <h1 className="pb-2">{player} Guess</h1>
-      <GuessModal
-        isOpen={isGuessing}
-        isTurn={isTurn}
-        handleClose={() => setIsGuessing(false)}
-      />
+      <GuessModal isOpen={isGuessing} isTurn={isTurn} />
       <div className="wait">
         {!isGameStarted &&
           `Waiting for opponent to join. Share game code: ${gameCode} `}
