@@ -61,20 +61,45 @@ export const AboutModal = ({ isOpen, handleClose }: Props) => {
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      This is an open source clone of the game Wordle -{' '}
+                      This is an open-source{' '}
                       <a
-                        href="https://github.com/dill/primel"
+                        href="https://github.com/Destiny-01/zk-final-frontend"
+                        target="_blank"
+                        rel="noreferrer"
                         className="underline font-bold"
                       >
-                        check out the code here
+                        (check out the code here)
                       </a>{' '}
-                      and{' '}
+                      multiplayer guessing game, where each guess is verified by
+                      a zero knowledge proof to avoid cheating in any way. Hope
+                      you enjoy the game, Cheers. Made by{' '}
                       <a
-                        href="https://www.powerlanguage.co.uk/wordle/"
+                        href="https://twitter.com/aigbe_1"
+                        target="_blank"
+                        rel="noreferrer"
                         className="underline font-bold"
                       >
-                        play the original here
-                      </a>
+                        Destiny Aigbe
+                      </a>{' '}
+                      as a final project for{' '}
+                      <a
+                        href="https://zku.one"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline font-bold"
+                      >
+                        Zero Knowledge University.
+                      </a>{' '}
+                      Once Again, enjoy and can always shoot me a{' '}
+                      <a
+                        href="mailto:aigbedestinyic@gmail.com"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline font-bold"
+                      >
+                        mail
+                      </a>{' '}
+                      . I'll be sure to reply
                     </p>
                   </div>
                 </div>

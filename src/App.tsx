@@ -8,6 +8,7 @@ import { WinModal } from './components/modals/WinModal'
 import { useHistory, useLocation } from 'react-router-dom'
 import { CharStatus, getGuessStatuses } from './lib/statuses'
 import { LoseModal } from './components/modals/LoseModal'
+import { AboutModal } from './components/modals/AboutModal'
 
 type Props = {
   socket: any
@@ -17,13 +18,13 @@ function App({ socket }: Props) {
   const [currentGuess, setCurrentGuess] = useState('')
   const [solution, setSolution] = useState('')
   const [isGameWon, setIsGameWon] = useState(false)
-  const [turn, setTurn] = useState(1)
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
   const [isLoseModalOpen, setIsLoseModalOpen] = useState(false)
   const [isGameEnded, setIsGameEnded] = useState(false)
+  const [isAboutModalOpen, setAboutModalOpen] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
-  // const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
+  const [turn, setTurn] = useState(1)
   const [isGameLost, setIsGameLost] = useState('')
   const [myGuesses, setMyGuesses] = useState<string[]>([])
   const [opponentGuesses, setOpponentGuesses] = useState<string[]>([])
@@ -33,6 +34,7 @@ function App({ socket }: Props) {
   const search = useLocation().search
   const gameCode = new URLSearchParams(search).get('room_id')
   const history = useHistory()
+  let isTurn: boolean = turn === Number(localStorage.getItem('item'))
 
   useEffect(() => {
     if (isGameWon) {
@@ -131,12 +133,12 @@ function App({ socket }: Props) {
           currentGuess={currentGuess}
           socket={socket}
           solution={''}
-          isTurn={turn}
+          isTurn={isTurn}
           status={myStatus}
         />
         <Grid
           status={opponentStatus}
-          isTurn={turn}
+          isTurn={isTurn}
           player="Opponent"
           guesses={opponentGuesses}
           currentGuess={''}
@@ -159,7 +161,7 @@ function App({ socket }: Props) {
           onDelete={onDelete}
           onEnter={onEnter}
           guesses={myGuesses}
-          isMyTurn={turn}
+          isTurn={isTurn}
         />
       )}
       <WinModal
@@ -176,11 +178,14 @@ function App({ socket }: Props) {
         socket={socket}
         handleClose={() => setIsInfoModalOpen(false)}
       />
-
+      <AboutModal
+        isOpen={isAboutModalOpen}
+        handleClose={() => setAboutModalOpen(false)}
+      />
       <button
         type="button"
-        className="mx-auto mt-8 flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        // onClick={() => setIsAboutModalOpen(true)}
+        // className="mx-auto mt-8 flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        onClick={() => setAboutModalOpen(true)}
       >
         About this game
       </button>

@@ -12,7 +12,7 @@ type Props = {
   currentGuess: string
   player: string
   solution: any
-  isTurn: number
+  isTurn: boolean
   status: any
 }
 

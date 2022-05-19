@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 
 type Props = {
   isOpen: boolean
-  isTurn: number
+  isTurn: boolean
 }
 
 export const GuessModal = ({ isOpen, isTurn }: Props) => {
@@ -48,16 +48,12 @@ export const GuessModal = ({ isOpen, isTurn }: Props) => {
                   as="h3"
                   className="text-lg leading-6 font-medium text-gray-900"
                 >
-                  {isTurn === Number(localStorage.getItem('item')) ? (
-                    <p>You are</p>
-                  ) : (
-                    <p>The other player is</p>
-                  )}
-                  Guessing
+                  {isTurn ? <p>You just</p> : <p>The other player just</p>}
+                  Guessed
                 </Dialog.Title>
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">
-                    Verifying... This could take some seconds...
+                    Verifying Guess... This could take some seconds...
                   </p>
                 </div>
               </div>

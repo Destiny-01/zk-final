@@ -11,11 +11,11 @@ type Props = {
 }
 
 export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
-  let history = useHistory()
-  const [code, setCode] = useState('hh')
+  const history = useHistory()
+  const [code, setCode] = useState('')
   const [guess, setGuess] = useState('')
+  const [isInvalidGame, setIsInvalidGame] = useState('s')
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
-  const [isInvalidGame, setIsInvalidGame] = useState(false)
 
   const handleSubmit = () => {
     const guessArr = String(guess)
@@ -32,16 +32,18 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
         setIsWordNotFoundAlertOpen(false)
       }, 3000)
     }
-    socket.on('unknownGame', () => {
-      // console.log('boooo')
+    console.log('sss', isInvalidGame)
 
-      setIsInvalidGame(true)
-      // console.log(isInvalidGame)
+    socket.on('unknownGame', () => {
+      console.log('boooo')
+      setIsInvalidGame('true')
     })
-    socket.on('tooManyPlayers', () => setIsInvalidGame(true))
+
+    console.log('fff', isInvalidGame)
+    // socket.on('tooManyPlayers', () => setIsInvalidGame(true))
     socket.emit('joinGame', code, guess)
     // console.log(isInvalidGame)
-    !isInvalidGame && history.push(`/?room_id=${code}`)
+    // !isInvalidGame && history.push(`/?room_id=${code}`)
   }
 
   return (
@@ -85,10 +87,10 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                 message="Please input a non repeating 4 digit number"
                 isOpen={isWordNotFoundAlertOpen}
               />
-              <Alert
+              {/* <Alert
                 message="Game not found or already 2 players in game"
-                isOpen={isInvalidGame}
-              />
+                // isOpen={isInvalidGame}
+              /> */}
               <div className="absolute right-4 top-4">
                 <XCircleIcon
                   className="h-6 w-6 cursor-pointer"
@@ -123,7 +125,11 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                       <input
                         className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
                         placeholder="eg. 1234"
-                        onChange={(e) => setGuess(e.target.value)}
+                        onChange={(e) =>
+                          e.target.value === 'Enter'
+                            ? handleSubmit()
+                            : setGuess(e.target.value)
+                        }
                         type="number"
                       />
                     </label>

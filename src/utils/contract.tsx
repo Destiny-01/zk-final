@@ -1,11 +1,17 @@
+import { useState } from 'react'
 import Web3 from 'web3'
+import { Alert } from '../components/alerts/Alert'
 import { abi } from './abi'
 
 export const HandleConnect = async (socket: any) => {
+  const [isAlertOpen, setIsAlertOpen] = useState(false)
   try {
     const { ethereum } = window
     if (!ethereum) {
-      alert('Please install MetaMask!')
+      setIsAlertOpen(true)
+      setTimeout(() => {
+        setIsAlertOpen(false)
+      }, 3000)
       return
     }
     if (ethereum.selectedAddress) {
@@ -17,10 +23,10 @@ export const HandleConnect = async (socket: any) => {
       method: 'eth_requestAccounts',
     })
     console.log('Connected', accounts[0], abi[0])
-    let contractAddress = '0xD87d2d064f59284bddCce34B31656FD47f20D75e'
+    // const contractAddress = '0xD87d2d064f59284bddCce34B31656FD47f20D75e'
     // const contract = new web3.eth.Contract(parsed, contractAddress)
     // socket.emit('contract', contract, accounts[0])
-    return accounts[0]
+    return <Alert isOpen={isAlertOpen} message="Please install MetaMask!" />
   } catch (error) {
     console.log(error)
   }

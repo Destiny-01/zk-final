@@ -9,7 +9,7 @@ type Props = {
   onEnter: () => void
   guesses: string[]
   solution: string
-  isMyTurn: number
+  isTurn: boolean
 }
 
 export const Keyboard = ({
@@ -18,7 +18,7 @@ export const Keyboard = ({
   onEnter,
   guesses,
   solution,
-  isMyTurn,
+  isTurn,
 }: Props) => {
   // const charStatuses = getStatuses(guesses, solution)
 
@@ -69,7 +69,7 @@ export const Keyboard = ({
         <Key width={65.4} value="ENTER" onClick={onClick}>
           Enter
         </Key>
-        {isMyTurn === Number(localStorage.getItem('item')) && <p>hmm</p>}
+        {isTurn && <p>hmm</p>}
         <Key width={65.4} value="DELETE" onClick={onClick}>
           Delete
         </Key>

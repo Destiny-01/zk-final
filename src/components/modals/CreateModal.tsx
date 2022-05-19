@@ -12,14 +12,14 @@ type Props = {
 
 let gameCode = ''
 
-let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 for (let i = 0; i < 5; i++) {
   gameCode += characters.charAt(Math.floor(Math.random() * characters.length))
 }
 export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
   const [input, setInput] = useState('')
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
-  let history = useHistory()
+  const history = useHistory()
 
   const handleCreate = () => {
     const guessArr = String(input)
@@ -109,7 +109,12 @@ export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
                     <input
                       className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
                       placeholder="Enter number to be guessed"
-                      onChange={(e) => setInput(e.target.value)}
+                      onChange={(e) => {
+                        console.log(e)
+                        e.target.value === 'Enter'
+                          ? handleCreate()
+                          : setInput(e.target.value)
+                      }}
                       type="number"
                     />
                   </label>
