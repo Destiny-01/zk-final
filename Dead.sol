@@ -17,13 +17,15 @@ interface IVerifier {
 }
 
 contract DeadTarget is ERC721URIStorage {
-    IVerifier private verifier = IVerifier(0x2e97EbdB8C2536A5349ec646dC499495daCA184c);
+    IVerifier private verifier;
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     mapping(address => string) internal solutionHashes;
     mapping(address => uint256) internal lastGameCreated;
 
-    constructor() ERC721("DeadTargetNFT", "DTA") {}
+    constructor(address _verifier) ERC721("DeadTargetNFT", "DTA") {
+        verifier = IVerifier(_verifier);
+    }
 
     function tokenURI()
         private
@@ -76,3 +78,5 @@ contract DeadTarget is ERC721URIStorage {
     }
     
 }
+
+// 0x2e97EbdB8C2536A5349ec646dC499495daCA184c
