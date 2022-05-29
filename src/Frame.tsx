@@ -4,7 +4,7 @@ import App from './App'
 import { io } from 'socket.io-client'
 import { Connect } from './utils/connect'
 
-const socket = io('http://localhost:8000')
+const socket = io('https://immense-ocean-69068.herokuapp.com')
 const Frame = () => {
   const search = useLocation().search
   const gameCode = new URLSearchParams(search).get('room_id')
