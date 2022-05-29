@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { JoinModal } from './components/modals/JoinModal'
 import { CreateModal } from './components/modals/CreateModal'
-import { HandleConnect } from './utils/contract'
 import { AboutModal } from './components/modals/AboutModal'
+import { Alert } from './components/alerts/Alert'
 
 type Props = {
   socket: any
@@ -10,21 +10,22 @@ type Props = {
 
 function Home({ socket }: Props) {
   const [isJoinModalOpen, setJoinModalOpen] = useState(false)
-  const [isAboutModalOpen, setAboutModalOpen] = useState(false)
+  const [isEthAlertOpen, setEthAlertOpen] = useState(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isAboutModalOpen, setAboutModalOpen] = useState(false)
 
   const createModal = () => {
-    // HandleConnect(socket)
-    // if (window.ethereum.selectedAddress) {
+    if (!window.ethereum.selectedAddress) {
+      return setEthAlertOpen(true)
+    }
     setIsCreateModalOpen(true)
-    // }
   }
 
   const joinModal = () => {
-    // HandleConnect(socket)
-    // if (window.ethereum.selectedAddress) {
+    if (!window.ethereum.selectedAddress) {
+      return setEthAlertOpen(true)
+    }
     setJoinModalOpen(true)
-    // }
   }
 
   return (
@@ -34,6 +35,10 @@ function Home({ socket }: Props) {
           Can you crack your opponent's code before they crack yours?
         </h1>
       </div>
+      <Alert
+        isOpen={isEthAlertOpen}
+        message="Please make sure you are connected to harmony chain by clicking the connect button above"
+      />
       <AboutModal
         isOpen={isAboutModalOpen}
         handleClose={() => setAboutModalOpen(false)}
@@ -49,9 +54,6 @@ function Home({ socket }: Props) {
         socket={socket}
       />
       <div className="flex justify-center mb-1 ">
-        {/* {window.ethereum.selectedAddress?( 
-          <div>*/}
-
         <button
           type="button"
           className="mx-3 mt-8 flex items-center px-3 py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -66,19 +68,6 @@ function Home({ socket }: Props) {
         >
           Enter game code
         </button>
-        {/* </div>
-        ):(
-          <div>
-        <button
-          type="button"
-          className="mx-3 mt-8 flex items-center px-3 py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onClick={()=>HandleConnect(socket)}
-        >
-         Connect Wallet
-        </button>
-
-          </div>
-        )} */}
       </div>
       <button
         type="button"

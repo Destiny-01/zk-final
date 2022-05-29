@@ -1,27 +1,5 @@
-# Primel
+# Dead Target
 
+This is a multiplayer guessing game where you try to guess your opponent code with each guess verified by a zk proof to avoid cheating. When the game is about to begin, we hash your solution and save it on-chain. When you guess, we make sure the hashes match. You might need $ONE to play this game. Enjoy.
 
-Thanks to:
-  - [Hannah Park](https://github.com/hannahcode) for creating the [Wordle clone](https://github.com/hannahcode/wordle) that I modified.
-  - The list of prime numbers at [UT Martin](https://primes.utm.edu/lists/small/10000.txt).
-  - The real Wordle [here](https://www.powerlanguage.co.uk/wordle/)
-
-- Play this [here](https://converged.yt/primel)
-
-# WHAT???!???
-
-In Wordle, you need to guess a 5 letter word. The game lets you know which letters you get right each time you guess a valid word.
-
-In Primel, you need to guess a 5 digit prime. The game lets you know which digits you get right each time you guess a valid 5 digit prime.
-
-![Primel doing it's thing](primel.png)
-
-
-_To Run Locally:_
-Clone the repository and perform the following command line actions:
-```bash
-$ cd wordle
-$ npm install
-$ npm run start
-```
-
+Credit to [Dill](https://github.com/dill/primel) for creating an amazing frontend which I tweaked. Enjoy.

@@ -1,8 +1,10 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
+import { startGame } from '../../utils/contract'
 import { Alert } from '../alerts/Alert'
+import { StartModal } from './StartModal'
 
 type Props = {
   isOpen: boolean
@@ -18,8 +20,26 @@ for (let i = 0; i < 5; i++) {
 }
 export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
   const [input, setInput] = useState('')
+  const [isStartModalOpen, setStartModalOpen] = useState(false)
+  const [isStartAlertOpen, setStartAlertOpen] = useState(false)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const history = useHistory()
+
+  useEffect(() => {
+    socket.on('hash1', async (hashSol: string, salt: string) => {
+      if (hashSol && isStartModalOpen) {
+        const start = await startGame(hashSol)
+        if (start === true) {
+          setStartModalOpen(false)
+          socket.emit('newGame', gameCode, input, hashSol, salt)
+          history.push(`/?room_id=${gameCode}`)
+        } else {
+          setStartModalOpen(false)
+          setStartAlertOpen(true)
+        }
+      }
+    })
+  }, [socket, isStartModalOpen])
 
   const handleCreate = () => {
     const guessArr = String(input)
@@ -36,9 +56,8 @@ export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
         setIsWordNotFoundAlertOpen(false)
       }, 3000)
     }
-    // const start=await contract.methods.
-    socket.emit('newGame', gameCode, input)
-    history.push(`/?room_id=${gameCode}`)
+    !isStartModalOpen && socket.emit('hash1', guessArr)
+    setStartModalOpen(true)
   }
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -60,7 +79,6 @@ export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
             aria-hidden="true"
@@ -87,6 +105,11 @@ export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
                 message="Please input a non repeating 4 digit number"
                 isOpen={isWordNotFoundAlertOpen}
               />
+              <Alert
+                isOpen={isStartAlertOpen}
+                message="Error while sending transaction. Please confirm you have enough ONE in your wallet"
+              />
+              <StartModal isOpen={isStartModalOpen} />
               <div>
                 <div className="text-center mb-3">
                   <Dialog.Title
@@ -109,12 +132,8 @@ export const CreateModal = ({ isOpen, handleClose, socket }: Props) => {
                     <input
                       className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
                       placeholder="Enter number to be guessed"
-                      onChange={(e) => {
-                        console.log(e)
-                        e.target.value === 'Enter'
-                          ? handleCreate()
-                          : setInput(e.target.value)
-                      }}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={(e) => e.code === 'Enter' && handleCreate()}
                       type="number"
                     />
                   </label>

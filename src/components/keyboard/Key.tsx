@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import classnames from 'classnames'
-import { KeyValue } from '../../lib/keyboard'
-import { CharStatus } from '../../lib/statuses'
+import { KeyValue } from '../../utils/statuses'
+import { CharStatus } from '../../utils/statuses'
 
 type Props = {
   children?: ReactNode

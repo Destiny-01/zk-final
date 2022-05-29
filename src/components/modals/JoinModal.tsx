@@ -1,8 +1,10 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
+import { startGame } from '../../utils/contract'
 import { Alert } from '../alerts/Alert'
+import { StartModal } from './StartModal'
 
 type Props = {
   isOpen: boolean
@@ -14,10 +16,33 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
   const history = useHistory()
   const [code, setCode] = useState('')
   const [guess, setGuess] = useState('')
-  const [isInvalidGame, setIsInvalidGame] = useState('s')
+  const [isInvalidGame, setIsInvalidGame] = useState(false)
+  const [isStartModalOpen, setStartModalOpen] = useState(false)
+  const [isStartAlertOpen, setStartAlertOpen] = useState(false)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    socket.on('hash2', async (hashSol: string, salt: string) => {
+      if (hashSol && isStartModalOpen) {
+        const start = await startGame(hashSol)
+        setStartModalOpen(false)
+        if (start === true) {
+          setStartModalOpen(false)
+          socket.emit('joinGame', code, guess, hashSol, salt)
+          history.push(`/?room_id=${code}`)
+        } else {
+          setStartModalOpen(false)
+          setStartAlertOpen(true)
+        }
+      }
+    })
+    socket.on('unknownGame', () => {
+      setIsInvalidGame(true)
+      setStartModalOpen(false)
+    })
+  }, [socket, isStartModalOpen, isInvalidGame])
+
+  const handleSubmit = async () => {
     const guessArr = String(guess)
       .split('')
       .map((currentGuess) => {
@@ -32,18 +57,8 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
         setIsWordNotFoundAlertOpen(false)
       }, 3000)
     }
-    console.log('sss', isInvalidGame)
-
-    socket.on('unknownGame', () => {
-      console.log('boooo')
-      setIsInvalidGame('true')
-    })
-
-    console.log('fff', isInvalidGame)
-    // socket.on('tooManyPlayers', () => setIsInvalidGame(true))
-    socket.emit('joinGame', code, guess)
-    // console.log(isInvalidGame)
-    // !isInvalidGame && history.push(`/?room_id=${code}`)
+    !isStartModalOpen && socket.emit('hash2', guessArr, code)
+    setStartModalOpen(true)
   }
 
   return (
@@ -66,7 +81,6 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
             aria-hidden="true"
@@ -87,10 +101,15 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                 message="Please input a non repeating 4 digit number"
                 isOpen={isWordNotFoundAlertOpen}
               />
-              {/* <Alert
+              <Alert
                 message="Game not found or already 2 players in game"
-                // isOpen={isInvalidGame}
-              /> */}
+                isOpen={isInvalidGame}
+              />
+              <Alert
+                isOpen={isStartAlertOpen}
+                message="Error while sending transaction. Please confirm you have enough ONE in your wallet"
+              />
+              <StartModal isOpen={isStartModalOpen} />
               <div className="absolute right-4 top-4">
                 <XCircleIcon
                   className="h-6 w-6 cursor-pointer"
@@ -112,7 +131,7 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                       </span>
                       <input
                         className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
-                        placeholder="Ask oppponent to send code (code is not case sensitive)"
+                        placeholder="Ask oppponent to send code (not case sensitive)"
                         onChange={(e) => setCode(e.target.value.toUpperCase())}
                         type="text"
                       />
@@ -125,11 +144,8 @@ export const JoinModal = ({ isOpen, socket, handleClose }: Props) => {
                       <input
                         className=" placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-2 px-3 mb-3 shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
                         placeholder="eg. 1234"
-                        onChange={(e) =>
-                          e.target.value === 'Enter'
-                            ? handleSubmit()
-                            : setGuess(e.target.value)
-                        }
+                        onChange={(e) => setGuess(e.target.value)}
+                        onKeyPress={(e) => e.code === 'Enter' && handleSubmit()}
                         type="number"
                       />
                     </label>

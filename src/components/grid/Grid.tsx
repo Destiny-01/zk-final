@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { Alert } from '../alerts/Alert'
 import { GuessModal } from '../modals/GuessModal'
 import { Cell } from './Cell'
 import { CompletedRow } from './CompletedRow'
@@ -7,7 +8,7 @@ import { CurrentRow } from './CurrentRow'
 import { EmptyRow } from './EmptyRow'
 
 type Props = {
-  guesses: string[]
+  allGuesses: string[]
   socket: any
   currentGuess: string
   player: string
@@ -18,7 +19,7 @@ type Props = {
 
 export const Grid = ({
   player,
-  guesses,
+  allGuesses,
   socket,
   currentGuess,
   solution,
@@ -27,6 +28,7 @@ export const Grid = ({
 }: Props) => {
   const [isGameStarted, setIsGameStarted] = useState(false)
   const [isGuessing, setIsGuessing] = useState(false)
+  const [isError, setIsError] = useState(false)
 
   useEffect(() => {
     socket.on('startGame', () => {
@@ -37,8 +39,18 @@ export const Grid = ({
       setIsGuessing(true)
     })
 
-    socket.on('turn', () => setIsGuessing(false))
-  }, [status, socket])
+    socket.on('error', () => {
+      setIsGuessing(false)
+      setIsError(true)
+    })
+
+    socket.on('done', () => setIsGuessing(false))
+  }, [status, socket, isGuessing])
+
+  const guesses = allGuesses.filter((i, a, e) => e.indexOf(i) === a)
+  useEffect(() => {
+    guesses.length === 5 && socket.emit('draw')
+  }, [socket, guesses.length])
 
   const search = useLocation().search
   const gameCode = new URLSearchParams(search).get('room_id')
@@ -47,7 +59,11 @@ export const Grid = ({
 
   return (
     <div className="pb-6 mx-5">
-      <h1 className="pb-2">{player} Guess</h1>
+      <Alert
+        isOpen={isError}
+        message="Something went wrong while guessing. Hope no one tried anything funny"
+      />
+      <h1 className="pb-2 text-2xs font-bold">{player} Guesses</h1>
       <GuessModal isOpen={isGuessing} isTurn={isTurn} />
       <div className="wait">
         {!isGameStarted &&
@@ -59,12 +75,7 @@ export const Grid = ({
         ))}
       </div>
       {guesses.map((guess, i) => (
-        <CompletedRow
-          key={i}
-          guess={guess}
-          socket={socket}
-          status={status && status[i]}
-        />
+        <CompletedRow key={i} guess={guess} status={status && status[i]} />
       ))}
       {guesses.length < 5 && <CurrentRow guess={currentGuess} />}
       {empties.map((_, i) => (

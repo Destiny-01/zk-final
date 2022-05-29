@@ -4,15 +4,10 @@ import { Cell } from '../grid/Cell'
 
 type Props = {
   isOpen: boolean
-  socket: any
   handleClose: () => void
 }
 
-export const InfoModal = ({ isOpen, handleClose, socket }: Props) => {
-  const handleClick = () => {
-    socket.emit('ready')
-    handleClose()
-  }
+export const InfoModal = ({ isOpen, handleClose }: Props) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -97,7 +92,7 @@ export const InfoModal = ({ isOpen, handleClose, socket }: Props) => {
                   </div>
                   <button
                     type="button"
-                    onClick={handleClick}
+                    onClick={() => handleClose()}
                     className="w-full items-center mt-2 py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     Let's Play

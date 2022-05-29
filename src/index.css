@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.buttonn {
+  margin-left: 741px;
+  top: 8px;
+}
+
+@media only screen and (max-width: 641px) {
+  .buttonn {
+    margin-left: 421px;
+  }
+}

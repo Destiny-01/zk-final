@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/outline'
 import { Alert } from '../alerts/Alert'
+import { wonGame } from '../../utils/contract'
 
 type Props = {
   isOpen: boolean
@@ -9,12 +10,20 @@ type Props = {
 }
 
 export const WinModal = ({ isOpen, handleClose }: Props) => {
-  const [isAlertOpen, setIsAlertOpen] = useState(false)
-  const handleMint = () => {
-    const tx = 'hh'
-    // const  tx= contract.methods.won.send()
-    // await tx.wait()
-    tx ? setIsAlertOpen(true) : setIsAlertOpen(false)
+  const [isAlertOpen, setIsAlertOpen] = useState('')
+  const [isMinting, setIsMinting] = useState(false)
+  const [isErrorOpen, setIsErrorOpen] = useState('')
+  const handleMint = async () => {
+    setIsMinting(true)
+    const tx = await wonGame()
+    if (tx?.startsWith('Error')) {
+      setIsErrorOpen(tx)
+      setIsMinting(false)
+      return
+    } else {
+      setIsMinting(false)
+      setIsAlertOpen(tx)
+    }
   }
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -60,9 +69,13 @@ export const WinModal = ({ isOpen, handleClose }: Props) => {
                   />
                 </div>
                 <Alert
-                  message="Success. You should see your nft soon"
-                  isOpen={isAlertOpen}
+                  message={`Success. You should see your nft soon. Your tx hash is ${isAlertOpen}`}
+                  isOpen={isAlertOpen.length !== 0}
                   variant="success"
+                />
+                <Alert
+                  message={isErrorOpen}
+                  isOpen={isErrorOpen.length !== 0}
                 />
                 <div className="mt-3 text-center sm:mt-5">
                   <Dialog.Title
@@ -75,10 +88,15 @@ export const WinModal = ({ isOpen, handleClose }: Props) => {
                     <p className="text-sm text-gray-500">
                       And as a reward, you can mint a winner nft below
                     </p>
-                    {!isAlertOpen ? (
+                    {!isAlertOpen && !isErrorOpen ? (
                       <button
                         type="button"
                         className="w-full mt-2 items-center py-3 border border-transparent text-sm font-medium rounded text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        style={
+                          isMinting
+                            ? { opacity: '0.4', pointerEvents: 'none' }
+                            : {}
+                        }
                         onClick={handleMint}
                       >
                         Mint NFT
@@ -91,6 +109,10 @@ export const WinModal = ({ isOpen, handleClose }: Props) => {
                       >
                         Back
                       </button>
+                    )}
+
+                    {isMinting && (
+                      <h6 className=" mt-2 items-center">Minting...</h6>
                     )}
                   </div>
                 </div>

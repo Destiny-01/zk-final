@@ -1,5 +1,4 @@
-import { KeyValue } from '../../lib/keyboard'
-// import { getStatuses } from '../../lib/statuses'
+import { KeyValue } from '../../utils/statuses'
 import { Key } from './Key'
 import { useEffect } from 'react'
 
@@ -20,8 +19,6 @@ export const Keyboard = ({
   solution,
   isTurn,
 }: Props) => {
-  // const charStatuses = getStatuses(guesses, solution)
-
   const onClick = (value: KeyValue) => {
     if (value === 'ENTER') {
       onEnter()
@@ -33,6 +30,9 @@ export const Keyboard = ({
   }
 
   useEffect(() => {
+    if (!isTurn) {
+      return
+    }
     const listener = (e: KeyboardEvent) => {
       if (e.code === 'Enter') {
         onEnter()
@@ -49,10 +49,23 @@ export const Keyboard = ({
     return () => {
       window.removeEventListener('keyup', listener)
     }
-  }, [onEnter, onDelete, onChar])
+  }, [onEnter, onDelete, onChar, isTurn])
 
   return (
-    <div>
+    <div style={!isTurn ? { pointerEvents: 'none', opacity: '0.4' } : {}}>
+      {!isTurn && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '37vw',
+            bottom: '125px',
+            fontWeight: '700',
+            fontSize: '24px',
+          }}
+        >
+          &#128274; Opponent is Guessing
+        </div>
+      )}
       <div className="flex justify-center mb-1">
         <Key value="1" onClick={onClick} />
         <Key value="2" onClick={onClick} />
@@ -69,7 +82,6 @@ export const Keyboard = ({
         <Key width={65.4} value="ENTER" onClick={onClick}>
           Enter
         </Key>
-        {isTurn && <p>hmm</p>}
         <Key width={65.4} value="DELETE" onClick={onClick}>
           Delete
         </Key>
