@@ -4,7 +4,11 @@ const snarkjs = require("snarkjs");
 const { buildPoseidon } = require("circomlibjs");
 const io = require("socket.io")(app, {
   cors: {
-    origin: "https://dead-target.netlify.app",
+    origin: [
+      "https://dead-target.netlify.app",
+      "https://dead-target-testnet.netlify.app",
+      "http://localhost:3000",
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   },
