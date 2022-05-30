@@ -5,7 +5,7 @@ const provider = new ethers.providers.Web3Provider(window.ethereum)
 const signer = provider.getSigner()
 const account = localStorage.getItem('_metamask')
 const abi = DeadTarget.abi
-const contractAddress = '0x24Cb77452567Cb8ab837F7D030E06122EF338d82'
+const contractAddress = '0xF323Fa91f47F5A76FEaa63C991eEd0fBD896687b'
 const contract = new ethers.Contract(contractAddress, abi, signer)
 
 export const verifyGuess = async (inputs: string[]) => {

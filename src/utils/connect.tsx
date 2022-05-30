@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import { testnet } from './chains'
+import { testnet, mainnet } from './chains'
 
 export const Connect = () => {
+  const chain =
+    window.location.host === 'dead-target.netlify.app' ? mainnet : testnet
   const [correctChain, setCorrectChain] = useState(false)
   const { ethereum } = window
 
@@ -32,16 +34,16 @@ export const Connect = () => {
   const changeChainId = async () => {
     let chainId = await ethereum.request({ method: 'eth_chainId' })
 
-    console.log('target chain: ', testnet.chainId)
+    console.log('target chain: ', chain.chainId)
     console.log('current chain: ', chainId)
 
-    if (chainId !== testnet.chainId) {
+    if (chainId !== chain.chainId) {
       try {
         await ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [
             {
-              chainId: testnet.chainId,
+              chainId: chain.chainId,
             },
           ],
         })
@@ -51,7 +53,7 @@ export const Connect = () => {
           try {
             await ethereum.request({
               method: 'wallet_addEthereumChain',
-              params: [testnet],
+              params: [chain],
             })
           } catch (addError) {
             console.error(addError)
@@ -67,14 +69,14 @@ export const Connect = () => {
       window.location.reload()
     }, 2000)
     localStorage.setItem('_metamask', accounts[0])
-    setCorrectChain(chainId === testnet.chainId)
+    setCorrectChain(chainId === chain.chainId)
   }
 
   const checkChainId = async () => {
     let chainId = await ethereum.request({ method: 'eth_chainId' })
     console.log('Chain ID:', chainId, parseInt(chainId))
 
-    setCorrectChain(chainId === testnet.chainId)
+    setCorrectChain(chainId === chain.chainId)
   }
   console.log(account, correctChain)
 
